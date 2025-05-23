@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { ProjectRepository } from './repositories/project.repository';
-import { CreateProjectDto, ProjectListDto, UpdateProjectDto } from './dto/project.dto';
+import {
+  CreateProjectDto,
+  ProjectListDto,
+  UpdateProjectDto,
+} from './dto/project.dto';
 import { IResponse } from 'src/helpers/IResponseHandler';
 
 @Injectable()
@@ -44,12 +48,26 @@ export class ProjectService {
   async projectList(body: ProjectListDto, user: any): Promise<IResponse> {
     if (user.role == 'user')
       return { code: 403, message: 'you are not authorized', success: false };
-    const projectList = await this.projectRepo.projectLst(body)
+    const projectList = await this.projectRepo.projectLst(body);
     return {
       code: 200,
       message: 'Project list fetched successfully',
       success: true,
       data: projectList,
+    };
+  }
+  async deleteProject(id: string, user: any): Promise<IResponse> {
+    if (user.role == 'user')
+      return { code: 403, message: 'you are not authorized', success: false };
+    await this.projectRepo.deleteOne({
+      manager_id: user.id,
+      id: parseInt(id),
+    });
+    return {
+      code: 200,
+      message: 'Project deleted successfully',
+      success: true,
+      data: {},
     };
   }
 }
